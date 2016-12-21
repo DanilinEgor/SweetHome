@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="lce_content_view_animation_translate_y">40dp</dimen>
+</resources>
