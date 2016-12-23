@@ -1,27 +1,29 @@
-package xyz.egor_d.sweethome
+package xyz.egor_d.sweethome.presenter
 
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter
 import rx.Subscription
 import timber.log.Timber
+import xyz.egor_d.sweethome.NewsMVP
+import xyz.egor_d.sweethome.model.DataManager
 import javax.inject.Inject
 
 class NewsPresenter
 @Inject constructor()
-    : MvpBasePresenter<NewsView>() {
+    : MvpBasePresenter<NewsMVP.View>(), NewsMVP.Presenter {
     @Inject
-    lateinit var dataManager: DataManager
+    lateinit var model: DataManager
 
     var sub: Subscription? = null
 
-    fun loadNews() {
-        view?.showLoading(false)
-        sub = dataManager.loadNews()
+    override fun loadNews(pullToRefresh: Boolean) {
+        view?.showLoading(pullToRefresh)
+        sub = model.loadNews()
                 .subscribe({ news ->
                     view?.setData(news)
                     view?.showContent()
                 }, { error ->
                     Timber.e(error)
-                    view?.showError(error, false)
+                    view?.showError(error, pullToRefresh)
                 })
     }
 

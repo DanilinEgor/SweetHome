@@ -1,4 +1,4 @@
-package xyz.egor_d.sweethome
+package xyz.egor_d.sweethome.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -6,6 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
 import rx.Observable
+import xyz.egor_d.sweethome.BuildConfig
 
 interface Api {
     @Headers("X-Api-Key: " + BuildConfig.API_KEY)

@@ -1,12 +1,14 @@
-package xyz.egor_d.sweethome
+package xyz.egor_d.sweethome.view
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import xyz.egor_d.sweethome.R
+import xyz.egor_d.sweethome.bindView
+import xyz.egor_d.sweethome.model.NewsItem
 import java.util.*
-
 
 class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
     val data = ArrayList<NewsItem>()
@@ -24,7 +26,7 @@ class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
             = NewsViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.item_news, parent, false))
 
     override fun onBindViewHolder(holder: NewsViewHolder?, position: Int) {
-        holder?.title?.text = data.get(position).title
+        holder?.title?.text = data[position].title
     }
 }
 

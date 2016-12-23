@@ -82,10 +82,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
-repositories {
-    mavenCentral()
-}
-
 kapt {
     generateStubs = true
 }

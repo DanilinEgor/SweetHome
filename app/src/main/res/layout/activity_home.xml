@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment
     android:id="@+id/activity_home"
-    android:name="xyz.egor_d.sweethome.NewsFragment"
+    android:name="xyz.egor_d.sweethome.view.NewsFragment"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
