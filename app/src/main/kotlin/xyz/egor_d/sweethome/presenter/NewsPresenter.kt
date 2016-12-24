@@ -1,6 +1,6 @@
 package xyz.egor_d.sweethome.presenter
 
-import com.hannesdorfmann.mosby.mvp.MvpBasePresenter
+import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter
 import rx.Subscription
 import timber.log.Timber
 import xyz.egor_d.sweethome.NewsMVP
@@ -9,7 +9,9 @@ import javax.inject.Inject
 
 class NewsPresenter
 @Inject constructor()
-    : MvpBasePresenter<NewsMVP.View>(), NewsMVP.Presenter {
+    : MvpNullObjectBasePresenter<NewsMVP.View>(), NewsMVP.Presenter {
+    var view: NewsMVP.View? = null
+
     @Inject
     lateinit var model: DataManager
 
