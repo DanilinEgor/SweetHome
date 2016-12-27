@@ -5,80 +5,87 @@ import android.app.Dialog
 import android.app.Fragment
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
+import java.util.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import android.support.v4.app.Fragment as SupportFragment
 
-fun <V : View> View.bindView(id: Int)
+object ButterKnife {
+    fun reset(target: Any) {
+        LazyRegistry.reset(target)
+    }
+}
+
+public fun <V : View> View.bindView(id: Int)
         : ReadOnlyProperty<View, V> = required(id, viewFinder)
 
-fun <V : View> Activity.bindView(id: Int)
+public fun <V : View> Activity.bindView(id: Int)
         : ReadOnlyProperty<Activity, V> = required(id, viewFinder)
 
-fun <V : View> Dialog.bindView(id: Int)
+public fun <V : View> Dialog.bindView(id: Int)
         : ReadOnlyProperty<Dialog, V> = required(id, viewFinder)
 
-fun <V : View> Fragment.bindView(id: Int)
+public fun <V : View> Fragment.bindView(id: Int)
         : ReadOnlyProperty<Fragment, V> = required(id, viewFinder)
 
-fun <V : View> android.support.v4.app.Fragment.bindView(id: Int)
+public fun <V : View> android.support.v4.app.Fragment.bindView(id: Int)
         : ReadOnlyProperty<android.support.v4.app.Fragment, V> = required(id, viewFinder)
 
-fun <V : View> ViewHolder.bindView(id: Int)
+public fun <V : View> ViewHolder.bindView(id: Int)
         : ReadOnlyProperty<ViewHolder, V> = required(id, viewFinder)
 
-fun <V : View> View.bindOptionalView(id: Int)
+public fun <V : View> View.bindOptionalView(id: Int)
         : ReadOnlyProperty<View, V?> = optional(id, viewFinder)
 
-fun <V : View> Activity.bindOptionalView(id: Int)
+public fun <V : View> Activity.bindOptionalView(id: Int)
         : ReadOnlyProperty<Activity, V?> = optional(id, viewFinder)
 
-fun <V : View> Dialog.bindOptionalView(id: Int)
+public fun <V : View> Dialog.bindOptionalView(id: Int)
         : ReadOnlyProperty<Dialog, V?> = optional(id, viewFinder)
 
-fun <V : View> Fragment.bindOptionalView(id: Int)
+public fun <V : View> Fragment.bindOptionalView(id: Int)
         : ReadOnlyProperty<Fragment, V?> = optional(id, viewFinder)
 
-fun <V : View> android.support.v4.app.Fragment.bindOptionalView(id: Int)
+public fun <V : View> android.support.v4.app.Fragment.bindOptionalView(id: Int)
         : ReadOnlyProperty<android.support.v4.app.Fragment, V?> = optional(id, viewFinder)
 
-fun <V : View> ViewHolder.bindOptionalView(id: Int)
+public fun <V : View> ViewHolder.bindOptionalView(id: Int)
         : ReadOnlyProperty<ViewHolder, V?> = optional(id, viewFinder)
 
-fun <V : View> View.bindViews(vararg ids: Int)
+public fun <V : View> View.bindViews(vararg ids: Int)
         : ReadOnlyProperty<View, List<V>> = required(ids, viewFinder)
 
-fun <V : View> Activity.bindViews(vararg ids: Int)
+public fun <V : View> Activity.bindViews(vararg ids: Int)
         : ReadOnlyProperty<Activity, List<V>> = required(ids, viewFinder)
 
-fun <V : View> Dialog.bindViews(vararg ids: Int)
+public fun <V : View> Dialog.bindViews(vararg ids: Int)
         : ReadOnlyProperty<Dialog, List<V>> = required(ids, viewFinder)
 
-fun <V : View> Fragment.bindViews(vararg ids: Int)
+public fun <V : View> Fragment.bindViews(vararg ids: Int)
         : ReadOnlyProperty<Fragment, List<V>> = required(ids, viewFinder)
 
-fun <V : View> android.support.v4.app.Fragment.bindViews(vararg ids: Int)
+public fun <V : View> android.support.v4.app.Fragment.bindViews(vararg ids: Int)
         : ReadOnlyProperty<android.support.v4.app.Fragment, List<V>> = required(ids, viewFinder)
 
-fun <V : View> ViewHolder.bindViews(vararg ids: Int)
+public fun <V : View> ViewHolder.bindViews(vararg ids: Int)
         : ReadOnlyProperty<ViewHolder, List<V>> = required(ids, viewFinder)
 
-fun <V : View> View.bindOptionalViews(vararg ids: Int)
+public fun <V : View> View.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<View, List<V>> = optional(ids, viewFinder)
 
-fun <V : View> Activity.bindOptionalViews(vararg ids: Int)
+public fun <V : View> Activity.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<Activity, List<V>> = optional(ids, viewFinder)
 
-fun <V : View> Dialog.bindOptionalViews(vararg ids: Int)
+public fun <V : View> Dialog.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<Dialog, List<V>> = optional(ids, viewFinder)
 
-fun <V : View> Fragment.bindOptionalViews(vararg ids: Int)
+public fun <V : View> Fragment.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<Fragment, List<V>> = optional(ids, viewFinder)
 
-fun <V : View> android.support.v4.app.Fragment.bindOptionalViews(vararg ids: Int)
+public fun <V : View> android.support.v4.app.Fragment.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<android.support.v4.app.Fragment, List<V>> = optional(ids, viewFinder)
 
-fun <V : View> ViewHolder.bindOptionalViews(vararg ids: Int)
+public fun <V : View> ViewHolder.bindOptionalViews(vararg ids: Int)
         : ReadOnlyProperty<ViewHolder, List<V>> = optional(ids, viewFinder)
 
 private val View.viewFinder: View.(Int) -> View?
@@ -120,10 +127,27 @@ private class Lazy<T, V>(private val initializer: (T, KProperty<*>) -> V) : Read
     private var value: Any? = EMPTY
 
     override fun getValue(thisRef: T, property: KProperty<*>): V {
+        LazyRegistry.register(thisRef!!, this)
         if (value == EMPTY) {
             value = initializer(thisRef, property)
         }
         @Suppress("UNCHECKED_CAST")
         return value as V
+    }
+
+    fun reset() {
+        value = EMPTY
+    }
+}
+
+private object LazyRegistry {
+    private val lazyMap = WeakHashMap<Any, MutableCollection<Lazy<*, *>>>()
+
+    fun register(target: Any, lazy: Lazy<*, *>) {
+        lazyMap.getOrPut(target, { Collections.newSetFromMap(WeakHashMap()) }).add(lazy)
+    }
+
+    fun reset(target: Any) {
+        lazyMap[target]?.forEach { it.reset() }
     }
 }

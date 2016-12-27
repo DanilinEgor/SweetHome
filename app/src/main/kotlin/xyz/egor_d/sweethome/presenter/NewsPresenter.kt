@@ -10,27 +10,20 @@ import javax.inject.Inject
 class NewsPresenter
 @Inject constructor()
     : MvpNullObjectBasePresenter<NewsMVP.View>(), NewsMVP.Presenter {
-    var view: NewsMVP.View? = null
-
     @Inject
     lateinit var model: DataManager
 
     var sub: Subscription? = null
 
     override fun loadNews(pullToRefresh: Boolean) {
-        view?.showLoading(pullToRefresh)
+        view.showLoading(pullToRefresh)
         sub = model.loadNews()
                 .subscribe({ news ->
-                    view?.setData(news)
-                    view?.showContent()
+                    view.setData(news)
+                    view.showContent()
                 }, { error ->
                     Timber.e(error)
-                    view?.showError(error, pullToRefresh)
+                    view.showError(error, pullToRefresh)
                 })
-    }
-
-    override fun detachView(retainInstance: Boolean) {
-        sub?.unsubscribe()
-        super.detachView(retainInstance)
     }
 }

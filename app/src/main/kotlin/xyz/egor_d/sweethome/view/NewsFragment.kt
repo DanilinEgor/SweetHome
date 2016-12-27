@@ -7,21 +7,25 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.hannesdorfmann.mosby.mvp.lce.MvpLceFragment
-import xyz.egor_d.sweethome.DaggerAppComponent
-import xyz.egor_d.sweethome.NewsMVP
-import xyz.egor_d.sweethome.R
-import xyz.egor_d.sweethome.bindView
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.MvpLceViewStateFragment
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState
+import xyz.egor_d.sweethome.*
 import xyz.egor_d.sweethome.model.NewsItem
 import xyz.egor_d.sweethome.presenter.NewsPresenter
+import java.util.*
 import javax.inject.Inject
 
-class NewsFragment : MvpLceFragment<SwipeRefreshLayout, List<NewsItem>, NewsMVP.View, NewsMVP.Presenter>(), SwipeRefreshLayout.OnRefreshListener {
+class NewsFragment : MvpLceViewStateFragment<SwipeRefreshLayout, List<NewsItem>, NewsMVP.View, NewsMVP.Presenter>(), SwipeRefreshLayout.OnRefreshListener, NewsMVP.View {
     @Inject
     lateinit var newsPresenter: NewsPresenter
     val recyclerView: RecyclerView by bindView<RecyclerView>(R.id.recycler_view)
 
     private var adapter: NewsAdapter = NewsAdapter()
+
+    init {
+        isRetainInstance = true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +42,6 @@ class NewsFragment : MvpLceFragment<SwipeRefreshLayout, List<NewsItem>, NewsMVP.
 
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = adapter
-        loadData(false)
     }
 
     override fun showContent() {
@@ -57,6 +60,7 @@ class NewsFragment : MvpLceFragment<SwipeRefreshLayout, List<NewsItem>, NewsMVP.
 
     override fun setData(data: List<NewsItem>?) {
         adapter.setData(data)
+        adapter.notifyDataSetChanged()
     }
 
     override fun showLoading(pullToRefresh: Boolean) {
@@ -64,8 +68,19 @@ class NewsFragment : MvpLceFragment<SwipeRefreshLayout, List<NewsItem>, NewsMVP.
         contentView.isRefreshing = pullToRefresh
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        ButterKnife.reset(this)
+    }
+
     override fun onRefresh() {
         loadData(true)
+    }
+
+    override fun getData() = ArrayList(adapter.data)
+
+    override fun createViewState(): LceViewState<List<NewsItem>, NewsMVP.View> {
+        return RetainingLceViewState<List<NewsItem>, NewsMVP.View>()
     }
 
     override fun getErrorMessage(e: Throwable?, pullToRefresh: Boolean) = e?.message
